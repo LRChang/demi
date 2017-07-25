@@ -1,0 +1,5 @@
+#/bin/bash
+docker stop server-dev
+docker rm server-dev
+docker build -t server-dev ./docker/server-dev/
+docker run --name server-dev -v "$PWD"/server:/var/www/html -p 80:80 --link mysql-server -d server-dev
