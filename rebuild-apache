@@ -1,5 +1,7 @@
 #/bin/bash
-docker stop server-dev
-docker rm server-dev
-docker build -t server-dev ./docker/server-dev/
-docker run --name server-dev -v "$PWD"/server:/var/www/html -p 80:80 --link mysql-server -d server-dev
+docker stop myserver
+docker rm myserver
+docker build -t webserver ./docker/
+docker run --name myserver -v "$PWD"/src:/var/www/html -p 80:80  -e XDEBUG_CONFIG="remote_host=192.168.1.102" -d webserver
+
+#docker run --name mydb -p 3306:3306 -v "$PWD"/mysql:/var/lib/mysql -d hub.c.163.com/library/mysql:5.7.18 --character-set-server=utf8 --collation-server=utf8_general_ci
