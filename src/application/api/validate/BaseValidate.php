@@ -17,6 +17,8 @@ use think\Validate;
 class BaseValidate extends Validate
 {
     protected $requestData = null; // 请求参数
+    protected $tempData = null; // 传入的验证数据
+    protected $isRequest = true; // 是否为验证请求参数
 
     public function __construct(array $rules = [], array $message = [], array $field = [])
     {
@@ -24,13 +26,24 @@ class BaseValidate extends Validate
 
         // 保存请求值
         $this->requestData = Request::instance()->param();
+        $this->isRequest = true;
     }
 
     /**
-     * 获取https参数，验证参数
+     * 批量验证参数
+     * @param null $params
+     * @return bool
+     * @throws ParamError
      */
-    public function goCheck(){
-        $params = $this->requestData;
+    public function goCheck($params = null){
+        // 未传值，就验证请求参数
+        if( empty($params) ){
+            $params = $this->requestData;
+        }else{
+            // 保存传入的数据
+            $this->tempData = $params;
+            $this->isRequest = false;
+        }
 
         if( !$this->batch()->check($params) ){
             throw new ParamError([
@@ -46,12 +59,13 @@ class BaseValidate extends Validate
      * @return array
      */
     public function getCurrentData(){
+        $pool = $this->isRequest ? $this->requestData : $this->tempData;
         $data = [];
 
         $scene = $this->currentScene;
         if( !$scene ){
             foreach($this->rule as $key => $value){
-                $data[$key] = $this->requestData[$key];
+                $data[$key] = $pool[$key];
             }
 
             return $data;
@@ -59,13 +73,26 @@ class BaseValidate extends Validate
 
         foreach($this->scene[$scene] as $key => $value){
             if( is_numeric($key) ){
-                $data[$value] = $this->requestData[$value];
+                $data[$value] = $pool[$value];
             }else{
-                $data[$key] = $this->requestData[$key];
+                $data[$key] = $pool[$key];
             }
         }
 
         return $data;
+    }
+
+    /**
+     * 替换数据
+     * @param $field
+     * @param $data
+     */
+    protected function replaceData($field, $data){
+        if( $this->isRequest ){
+            $this->requestData[$field] = $data;
+        }else{
+            $this->tempData[$field] = $data;
+        }
     }
 
     /**
@@ -102,6 +129,45 @@ class BaseValidate extends Validate
     }
 
     /**
+     * 验证一个数组中的值是否都是正整数
+     * @param $value
+     * @return bool
+     */
+    protected function checkArrayIDs($value){
+        if( empty($value) || !is_array($value)){
+            return false;
+        }
+
+        foreach($value as $one){
+            if( !$this->isPositiveInt($one) ){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 验证数组是每一个元素都是非空字符串
+     * @param $value
+     * @return bool
+     */
+    protected function checkArrayString($value){
+        // 一定是非空数组
+        if( !is_array($value) || empty($value)  ){
+            return false;
+        }
+
+        // 非空字符串
+        foreach($value as $one){
+            if( ( !is_string($one) && !is_numeric($one) ) || $one === '' ){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * 验证值不能为空
      * @param $value
      * @return bool
@@ -118,5 +184,30 @@ class BaseValidate extends Validate
     protected function isMobile($value){
         $rule = '^1(3|4|5|7|8)\d{9}$^';
         return preg_match($rule, $value) ? true : false;
+    }
+
+    /**
+     * 去除数组中空元素
+     * @param $value
+     * @param $rule
+     * @param $data
+     * @param $field
+     * @param $title
+     * @return bool
+     */
+    protected function dropArrayEmptyElement($value, $rule, $data, $field, $title){
+        if(!is_array($value)){
+            return false;
+        }
+
+        $result = [];
+        foreach ($value as $key => $v){
+            if( !empty($v) ){
+                $result[$key] = $v;
+            }
+        }
+
+        $this->replaceData($field, $result);
+        return true;
     }
 }

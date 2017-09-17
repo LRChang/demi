@@ -13,7 +13,7 @@ use think\Model;
 
 class Product extends BaseModel
 {
-    protected $hidden = ['delete_time','update_time','category_id','create_time','img_id','from', 'pivot'];
+    protected $hidden = ['delete_time','update_time','create_time','from', 'pivot'];
 
     public function getMainImgUrlAttr($value,$data){
         return $this->prefixImgUrl($value,$data);
@@ -29,5 +29,26 @@ class Product extends BaseModel
         return self::page($page, $offset)
             ->order('create_time desc')
             ->select();
+    }
+
+    /**
+     * 获取商品详情
+     * @param int $id
+     * @return array|false|\PDOStatement|string|Model
+     */
+    public static function getDetail($id = 0){
+        return self::with(['detailImgs'=> ['img'],'properties'])
+            ->where('id','=',$id)
+            ->find();
+    }
+
+    // 商品详情图
+    public function detailImgs(){
+        return $this->hasMany('ProductImage','product_id','id');
+    }
+
+    // 商品属性
+    public function properties(){
+        return $this->hasmany('ProductProperty','product_id','id');
     }
 }

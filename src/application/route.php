@@ -32,6 +32,9 @@ Route::get('/api/:version/theme/','api/:version.Theme/getSimpleList'); // 根据
 // Product
 Route::get('/api/:version/product/recent','api/:version.Product/getRecent'); // 获取最新商品，可分页
 Route::get('/api/:version/product/cate/:cid','api/:version.Product/getCategoryItems'); // 获取一个分类及其下商品，可分页
+Route::get('/api/:version/product/:id','api/:version.Product/getProductDetail'); // 获取一个商品详细
+Route::post('/api/:version/product/create','api/:version.Product/createProduct'); // 新增商品
+Route::post('/api/:version/product/update','api/:version.Product/updateProduct'); // 新增商品
 
 // Category
 Route::get('/api/:version/category/all','api/:version.Category/getAll'); // 获取所有分类
@@ -45,3 +48,11 @@ Route::post('/api/:version/address','api/:version.UserAddress/create'); // 添�
 Route::get('/api/:version/address','api/:version.UserAddress/getAll'); // 获取用户所有地址
 Route::put('/api/:version/address/:id','api/:version.UserAddress/setDefault'); // 设置为默认地址
 Route::delete('/api/:version/address/:id','api/:version.UserAddress/delete'); // 删除一条地址
+
+// Order
+Route::post('/api/:version/order','api/:version.Order/placeOrder'); // 创建订单
+Route::get('/api/:version/order/:No','api/:version.Order/getOne'); // 查询一个订单
+Route::get('/api/:version/order','api/:version.Order/getByPage'); // 订单分页
+
+// Upload
+Route::post('/api/:version/upload/img','api/:version.Upload/img'); // 上传图片

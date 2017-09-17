@@ -33,6 +33,7 @@ class UserAddress extends BaseValidate
 
     protected $scene = [
         'create' => ['name','mobile','province','city','district','detail'],
+        'buy' => ['name','mobile','province','city','district','detail'],
         'edit' => ['id','name','mobile','province','city','district','detail'],
         'getAll' => [],
         'setDefault' => ['id'],

@@ -9,6 +9,8 @@
 namespace app\api\service;
 
 
+use app\lib\enum\ScopeEnum;
+use app\lib\exception\AccessDenied;
 use app\lib\exception\TokenError;
 use think\Cache;
 use think\Config;
@@ -82,5 +84,37 @@ class Token
      */
     public static function getCurrentUID(){
         return self::getCurrentTokenVar('uid');
+    }
+
+    /**
+     * 检查最低操作权限
+     * @param int $standard 最低权限基准
+     * @return bool
+     * @throws AccessDenied
+     */
+    public static function needPrimaryScope($standard = ScopeEnum::User){
+        $scope = self::getCurrentTokenVar('scope');
+
+        if( empty($scope) || !is_int($scope + 0) || $scope < $standard){
+            throw new AccessDenied();
+        }
+
+        return true;
+    }
+
+    /**
+     * 检查是否具有独占权限
+     * @param int $standard 权限基准
+     * @return bool
+     * @throws AccessDenied
+     */
+    public static function needExclusiveScope($standard = ScopeEnum::User){
+        $scope = self::getCurrentTokenVar('scope');
+
+        if( empty($scope) || !is_int($scope + 0) || $scope != $standard){
+            throw new AccessDenied();
+        }
+
+        return true;
     }
 }

@@ -10,6 +10,7 @@ namespace app\api\service;
 
 
 use app\api\model\User as UserModel;
+use app\lib\enum\ScopeEnum;
 use app\lib\exception\WeChatError;
 use think\Cache;
 use think\Config;
@@ -76,7 +77,7 @@ class MiniappToken extends Token
     private function prepareCacheValue($wxResult, $uid){
         $cacheValue = $wxResult;
         $cacheValue['uid'] = $uid;
-        $cacheValue['scope'] = 16;
+        $cacheValue['scope'] = ScopeEnum::User;
 
         return $cacheValue;
     }

@@ -10,9 +10,7 @@ namespace app\api\controller\v1;
 
 
 use app\api\validate\IDPostiveInt;
-use app\api\validate\TestValidate;
 use app\lib\exception\BannerMiss;
-use think\Validate;
 use app\api\model\Banner as BannerModel;
 
 class Banner

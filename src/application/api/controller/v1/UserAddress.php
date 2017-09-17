@@ -9,38 +9,20 @@
 namespace app\api\controller\v1;
 
 
+use app\api\controller\BaseController;
 use app\api\model\User as UserModel;
 use app\api\validate\UserAddress as AddressValidate;
-use app\api\service\Token as TokenService;
 use app\api\model\UserAddress as AddressModel;
 use app\lib\exception\AddressMiss;
 use app\lib\exception\ReturnSuccess;
 use app\lib\exception\UserMiss;
-use think\Controller;
 
-class UserAddress extends Controller
+class UserAddress extends BaseController
 {
-    protected $user;
-
-    /**
-     * 获取用户
-     * @throws UserMiss
-     */
-    protected function checkUser(){
-        // 检查该用户是否存在
-        $uid = TokenService::getCurrentUID();
-
-        $user = UserModel::get($uid);
-        if( !$uid ){
-            throw new UserMiss();
-        }
-
-        $this->user = $user;
-    }
-
     // 前置操作
     protected $beforeActionList = [
-        'checkuser',
+        'checkUserToken',
+        'checkUserPrimaryScope',
     ];
 
     public function create(){
@@ -53,7 +35,11 @@ class UserAddress extends Controller
         $data = $validate->getCurrentData();
 
         // 新增地址
-        $this->user->address()->save($data);
+        $user = UserModel::get($this->uid);
+        if( !$user ){
+            throw new UserMiss();
+        }
+        $user->address()->save($data);
 
         return ['msg' => 'success'];
     }
@@ -66,7 +52,7 @@ class UserAddress extends Controller
 
         // 获取数据
         $data = $validate->getCurrentData();
-        $result = AddressModel::updateByUser($this->user->id, $data['id'], $data);
+        $result = AddressModel::updateByUser($this->uid, $data['id'], $data);
 
         if( !$result ){
             throw new AddressMiss([
@@ -80,19 +66,19 @@ class UserAddress extends Controller
     }
 
     public function getAll(){
-        return AddressModel::getAllByUser($this->user->id);
+        return AddressModel::getAllByUser($this->uid);
     }
 
     public function setDefault($id){
         (new AddressValidate())->scene('setDefault')->goCheck();
-        AddressModel::setDefault($this->user->id, $id);
+        AddressModel::setDefault($this->uid, $id);
 
         return ['msg' => 'success'];
     }
 
     public function delete($id = null){
         (new AddressValidate())->scene('delete')->goCheck();
-        AddressModel::deleteByUser($this->user->id, $id);
+        AddressModel::deleteByUser($this->uid, $id);
 
         return ['msg' => 'success'];
     }

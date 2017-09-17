@@ -8,5 +8,5 @@
 
 return [
     'img_prefix' => 'http://www.demi.com/images', // 服务器本地图片地址前缀
-    'token_expire_id' => 7200, // token 缓存失效时间
+    'token_expire_id' => 72000, // token 缓存失效时间
 ];
