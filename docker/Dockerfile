@@ -1,7 +1,7 @@
 FROM hub.c.163.com/library/php:7.1.7-apache
 
 # 安装xdebug
-RUN pecl install xdebug-2.5.5 \
+RUN pecl install xdebug-2.5.5 \\
     && docker-php-ext-enable xdebug
 RUN docker-php-ext-install pdo_mysql
 
